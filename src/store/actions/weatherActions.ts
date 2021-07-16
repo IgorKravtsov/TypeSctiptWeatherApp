@@ -1,23 +1,23 @@
 import { ThunkAction } from 'redux-thunk';
-import { RootState } from '..';
-import { GET_WEATHER, SET_ALERT, SET_ERROR, SET_LOADING, WeatherAction, WeatherData, WeatherError } from '../types';
+import { RootState } from '../index';
+import { CityCoords, GET_WEATHER_DATA, WEATHER_ERROR, WEATHER_LOADING, WeatherAction, WeatherData } from '../types';
 
-
-export const getWeather = (city: string): ThunkAction<void, RootState, null, WeatherAction> => {
+export const getWeather = (city: CityCoords): ThunkAction<void, RootState, null, WeatherAction> => {
+	const { lon, lat } = city;
 	return async dispatch => {
 		try {
-			const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.REACT_APP_API_KEY}`);
+			const res = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&unit=metric&appid=${process.env.REACT_APP_API_KEY}`);
 			if(!res.ok) {
 				throw new Error('An error occured');
 			}
 			const resData: WeatherData = await res.json();
 			dispatch({
-				type: GET_WEATHER,
+				type: GET_WEATHER_DATA,
 				payload: resData
 			});
 		} catch(e) {
 			dispatch({
-				type: SET_ERROR,
+				type: WEATHER_ERROR,
 				payload: e.message
 			});
 		}
@@ -26,13 +26,13 @@ export const getWeather = (city: string): ThunkAction<void, RootState, null, Wea
 
 export const setLoading = (): WeatherAction => {
 	return {
-		type: SET_LOADING
+		type: WEATHER_LOADING
 	};
 }
 
 export const setError = (): WeatherAction => {
 	return {
-		type: SET_ERROR,
+		type: WEATHER_ERROR,
 		payload: ''
 		
 	};
